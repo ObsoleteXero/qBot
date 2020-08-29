@@ -13,4 +13,28 @@ async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='You | .help'))
     print(f'Bot online. Logged in as {client.user}')
 
+
+@client.command()
+@commands.is_owner()
+async def load(ctx, extension):
+    client.load_extension(f'cogs.{extension}')
+    await ctx.message.add_reaction('✅')
+    print(f'{extension} loaded')
+    await ctx.message.delete(delay=5)
+
+
+@client.command()
+@commands.is_owner()
+async def unload(ctx, extension):
+    client.unload_extension(f'cogs.{extension}')
+    await ctx.message.add_reaction('✅')
+    print(f'{extension} unloaded')
+    await ctx.message.delete(delay=5)
+
+
+for file in os.listdir('./cogs'):
+    if file.endswith('.py'):
+        client.load_extension(f'cogs.{file[:-3]}')
+        print(f'{file[:-3]} Loaded')
+
 client.run(token)
