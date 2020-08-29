@@ -29,7 +29,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.message.delete(delay=5)
 
         if isinstance(error, commands.BotMissingPermissions):
-            await ctx.send('Command failed; This user is a moderator.', delete_after=5)
+            await ctx.send('Command failed; Insufficient Permissions.', delete_after=5)
             await ctx.message.delete(delay=5)
 
         log_channel = self.client.get_channel(731880960832045156)
