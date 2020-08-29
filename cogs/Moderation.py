@@ -31,6 +31,13 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     async def mute(self, ctx, member: discord.Member, time: TimeConverter = None, *, reason=None):
         role = discord.utils.get(ctx.guild.roles, name='Muted')
+        if ctx.author == member:
+            await ctx.message.add_reaction('🤔')
+            return
+        if member.guild_permissions.manage_roles and member.top_role.position > role.position:
+            await ctx.send('User cannot be muted', delete_after=5)
+            await ctx.message.delete(delay=5)
+            raise commands.CommandError('User cannot be muted.')
         await member.add_roles(role, reason='Mute')
         await ctx.send(f'{member} has been muted | {reason}')
         await ctx.message.delete()
