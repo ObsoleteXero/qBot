@@ -40,10 +40,28 @@ class Moderation(commands.Cog):
             raise commands.CommandError('User cannot be muted.')
         await member.add_roles(role, reason='Mute')
         await ctx.send(f'{member} has been muted | {reason}')
+        await member.send(f'You have been muted from {ctx.guild.name} for {reason}')
         await ctx.message.delete()
         if time:
             await asyncio.sleep(time)
             await member.remove_roles(role, reason='Lapse of mute')
+
+    @commands.command()
+    @commands.has_permissions(ban_members=True)
+    async def ban(self, ctx, member: discord.Member, time: TimeConverter = None, *, reason=None):
+        if ctx.author.top_role.position < member.top_role.position:
+            await ctx.send('Cannot ban user', delete_after=5)
+            await ctx.message.delete(delay=5)
+            raise commands.CommandError('Cannot ban user.')
+
+    @commands.command()
+    @commands.has_permissions(kick_members=True)
+    async def kick(self, ctx, member: discord.Member, *, reason=None):
+        if ctx.author.top_role.position < member.top_role.position:
+            pass
+        await member.send(f'You have been kicked from {ctx.guild.name} for {reason}')
+        await ctx.send(f'{member} has been kicked from the server | {reason}')
+        await ctx.message.delete()
 
 
 def setup(client):
