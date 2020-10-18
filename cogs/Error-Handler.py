@@ -15,10 +15,6 @@ class CommandErrorHandler(commands.Cog):
 
         error = getattr(error, 'original', error)
 
-        if isinstance(error, commands.ExtensionError):
-            await ctx.message.add_reaction('❌')
-            await ctx.message.delete(delay=5)
-
         if isinstance(error, commands.NotOwner):
             await ctx.send('Only the bot owner can use that command.', delete_after=5)
             await ctx.message.delete(delay=5)

@@ -23,12 +23,24 @@ async def load(ctx, extension):
     await ctx.message.delete(delay=5)
 
 
+@load.error
+async def load_error(ctx, error):
+    await ctx.message.add_reaction('❌')
+    await ctx.message.delete(delay=5)
+
+
 @client.command()
 @commands.is_owner()
 async def unload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
     await ctx.message.add_reaction('✅')
     print(f'{extension} unloaded')
+    await ctx.message.delete(delay=5)
+
+
+@unload.error
+async def unload_error(ctx, error):
+    await ctx.message.add_reaction('❌')
     await ctx.message.delete(delay=5)
 
 
