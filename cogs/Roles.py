@@ -1,4 +1,5 @@
 import discord
+from scripts.guild_config import reaction_roles_add, reaction_roles_remove
 from copy import copy
 from discord.ext import commands, tasks
 
@@ -36,6 +37,22 @@ class Roles(commands.Cog):
         for user, role in working_copy:
             await user.add_roles(role)
             self.role_queue.remove((user, role))
+
+    @commands.command()
+    async def add_rr(self, ctx, reaction: discord.PartialEmoji, role: discord.Role):
+        response = await reaction_roles_add(ctx.guild.id, reaction.id, role.id)
+        if response:
+            await ctx.send('Rection-Role pair added.', delete_after=5)
+        else:
+            await ctx.send('Rection-Role already exists.', delete_after=5)
+
+    @commands.command()
+    async def remove_rr(self, ctx, reaction: discord.PartialEmoji):
+        response = await reaction_roles_remove(ctx.guild.id, reaction.id)
+        if response:
+            await ctx.send('Rection-Role pair removed.', delete_after=5)
+        else:
+            await ctx.send('Rection-Role pair does not exist.', delete_after=5)
 
 
 def setup(client):
