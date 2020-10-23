@@ -10,7 +10,7 @@ client = commands.Bot(command_prefix='.')
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='You | .help'))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='You'))
     print(f'Bot online. Logged in as {client.user}')
 
 
@@ -40,6 +40,21 @@ async def unload(ctx, extension):
 
 @unload.error
 async def unload_error(ctx, error):
+    await ctx.message.add_reaction('❌')
+    await ctx.message.delete(delay=5)
+
+
+@client.command()
+@commands.is_owner()
+async def reload(ctx, extension):
+    client.reload_extension(f'cogs.{extension}')
+    await ctx.message.add_reaction('✅')
+    print(f'{extension} reloaded')
+    await ctx.message.delete(delay=5)
+
+
+@reload.error
+async def reload_error(ctx, error):
     await ctx.message.add_reaction('❌')
     await ctx.message.delete(delay=5)
 
