@@ -1,6 +1,6 @@
 import discord
 import asyncio
-from scripts.guild_config import reaction_message_set, reaction_messages_status, reaction_message_list
+import scripts.guild_config as gc
 from copy import copy
 from discord.ext import commands, tasks
 
@@ -14,9 +14,9 @@ class Roles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if not await reaction_messages_status(payload.guild_id):
+        if not await gc.reaction_messages_status(payload.guild_id):
             return
-        emoji_roles = await reaction_message_list(payload.guild_id, payload.message_id)
+        emoji_roles = await gc.reaction_message_list(payload.guild_id, payload.message_id)
         if not emoji_roles:
             return
         guild = self.client.get_guild(payload.guild_id)
@@ -51,12 +51,21 @@ class Roles(commands.Cog):
         for n, reaction in enumerate(reactions):
             msg_data[str(reaction.id)] = str(roles[n].id)
             desc += f'{reaction} : {roles[n].mention}\n'
-        await reaction_message_set(ctx.guild.id, message.id, msg_data)
+        await gc.reaction_message_set(ctx.guild.id, message.id, msg_data)
         embed = discord.Embed(title='Reaction Roles', description=desc, color=0x6dcded)
         await ctx.send(embed=embed)
+        await ctx.message.delete()
         await asyncio.wait_for(message.clear_reactions(), 5)
         for reaction in reactions:
             await message.add_reaction(reaction)
+
+    @commands.command()
+    async def disable_rr(self, ctx, message: discord.Message):
+        if await gc.reaction_message_remove(ctx.guild.id, message.id):
+            await ctx.send('Reaction-Roles disabled for the message.', delete_after=5)
+        else:
+            await ctx.send('Reaction-Roles not found for the given message.', delete_after=5)
+        await ctx.message.delete()
 
 
 def setup(client):

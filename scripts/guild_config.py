@@ -84,6 +84,35 @@ async def reaction_message_set(guild_id, message_id, msg_data):
 
     await conn.close()
 
+
+async def reaction_message_remove(guild_id, message_id):
+    conn = await asyncpg.connect(getenv('DATABASE'))
+    await conn.set_type_codec(
+        'json',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
+
+    reaction_dict = await conn.fetchval(
+        'SELECT reaction_roles_data FROM guild_config WHERE guild_id = $1', guild_id
+    )
+
+    try:
+        reaction_dict.pop(str(message_id))
+        if len(reaction_dict) == 0:
+            await conn.execute(
+                'UPDATE guild_config SET reaction_roles = false WHERE guild_id = $1', guild_id
+            )
+        await conn.execute(
+            'UPDATE guild_config SET reaction_roles_data = $1 WHERE guild_id = $2', reaction_dict, guild_id
+        )
+        await conn.close()
+        return True
+    except KeyError:
+        await conn.close()
+        return False
+
 # asyncio.get_event_loop().run_until_complete(joined(602122505410314241))
 # x = asyncio.get_event_loop().run_until_complete(reaction_messages_status(602122505410314241))
 #asyncio.get_event_loop().run_until_complete(reaction_message_set(602122505410314241, 486716431837298697, {'reaction_id':'role_id'}))
